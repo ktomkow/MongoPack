@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace MongoPack.Testing
 {
-    interface ICollectionPurger<TKey, TEntity> 
+    public interface ICollectionPurger<TKey, TEntity> 
         where TKey : struct
         where TEntity : IEntity<TKey>
     {
