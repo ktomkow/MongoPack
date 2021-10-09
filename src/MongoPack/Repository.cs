@@ -1,4 +1,5 @@
-﻿using ProjectsCore.Models;
+﻿using MongoPack.Interrfaces;
+using ProjectsCore.Models;
 using ProjectsCore.Persistence;
 using System.Threading.Tasks;
 
@@ -8,6 +9,13 @@ namespace MongoPack
         where TKey : struct
         where TEntity : IEntity<TKey>
     {
+        private readonly ICollectionNamerResolver resolver;
+
+        public Repository(ICollectionNamerResolver resolver)
+        {
+            this.resolver = resolver ?? throw new System.ArgumentNullException(nameof(resolver));
+        }
+
         public Task<TEntity> Get(TKey key)
         {
             throw new System.NotImplementedException();
