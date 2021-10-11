@@ -1,6 +1,10 @@
-﻿using MongoPack.Interrfaces;
+﻿using MongoDB.Bson;
+using MongoDB.Driver;
+using MongoPack.Interrfaces;
 using ProjectsCore.Models;
 using ProjectsCore.Persistence;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MongoPack
@@ -9,11 +13,16 @@ namespace MongoPack
         where TKey : struct
         where TEntity : IEntity<TKey>
     {
-        private readonly ICollectionNamerResolver resolver;
+        private readonly ICollectionNameResolver resolver;
+        private readonly MongoClient dbClient;
+        private readonly IMongoDatabase db;
 
-        public Repository(ICollectionNamerResolver resolver)
+        public Repository(ICollectionNameResolver resolver)
         {
             this.resolver = resolver ?? throw new System.ArgumentNullException(nameof(resolver));
+
+            this.dbClient = new MongoClient("mongodb://192.168.0.133:3099");
+            this.db = this.dbClient.GetDatabase("test");
         }
 
         public Task<TEntity> Get(TKey key)
@@ -21,14 +30,19 @@ namespace MongoPack
             throw new System.NotImplementedException();
         }
 
-        public Task<TEntity> GetAll()
+        public async Task<IQueryable<TEntity>> GetAll()
         {
-            throw new System.NotImplementedException();
+            var result = await this.GetCollection().AsQueryable().ToListAsync();
+
+            return result.AsQueryable();
         }
 
-        public Task<TEntity> Insert(TEntity entity)
+        public async Task<TEntity> Insert(TEntity entity)
         {
-            throw new System.NotImplementedException();
+            var collection = this.GetCollection();
+            await collection.InsertOneAsync(entity);
+
+            return entity;
         }
 
         public Task<TEntity> Remove(TEntity entity)
@@ -39,6 +53,14 @@ namespace MongoPack
         public Task<TEntity> Update(TEntity entity)
         {
             throw new System.NotImplementedException();
+        }
+
+        public IMongoCollection<TEntity> GetCollection()
+        {
+            string collectionName = this.resolver.Resolve(typeof(TEntity));
+            var collection = this.db.GetCollection<TEntity>(collectionName);
+
+            return collection;
         }
     }
 }

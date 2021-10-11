@@ -7,7 +7,7 @@ namespace MongoPack.UnitTests
 {
     public class DefaultCollectionNameResolverTests
     {
-        private readonly ICollectionNamerResolver resolver;
+        private readonly ICollectionNameResolver resolver;
 
         public DefaultCollectionNameResolverTests()
         {
@@ -52,6 +52,15 @@ namespace MongoPack.UnitTests
             string result = this.resolver.Resolve(someInstance);
 
             result.Should().Be("ChildClass");
+        }
+
+
+        [Fact]
+        public void ResolveByType_SomeClass_ShouldMatch_SomeClass()
+        {
+            string result = this.resolver.Resolve(typeof(SomeClass));
+
+            result.Should().Be("SomeClass");
         }
 
         private class SomeClass

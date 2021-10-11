@@ -6,7 +6,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
-    <PackageReference Include="ProjectsCore" Version="1.0.0.12" />
+    <PackageReference Include="MongoDB.Driver" Version="2.13.2" />
+    <PackageReference Include="ProjectsCore" Version="1.0.0.16" />
   </ItemGroup>
 
 </Project>
