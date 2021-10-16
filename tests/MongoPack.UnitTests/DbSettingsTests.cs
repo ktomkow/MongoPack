@@ -11,7 +11,7 @@ namespace MongoPack.UnitTests
         [Fact]
         public void DbName_WhenDbNameNotSpecified_UseProjectName()
         {
-            DbSettings dbSettings = new DbSettings(ConnectionString);
+            MongoDbSettings dbSettings = new MongoDbSettings(ConnectionString);
 
             dbSettings.DbName.Should().Be(Assembly.GetExecutingAssembly().GetName().Name);
         }

@@ -14,7 +14,7 @@ namespace MongoPack
         where TEntity : IEntity<TKey>
     {
         private readonly ICollectionNameResolver resolver;
-        private readonly MongoClient dbClient;
+        private readonly IMongoClient dbClient;
         private readonly IMongoDatabase db;
 
         public Repository(ICollectionNameResolver resolver)
@@ -32,9 +32,9 @@ namespace MongoPack
 
         public async Task<IQueryable<TEntity>> GetAll()
         {
-            var result = await this.GetCollection().AsQueryable().ToListAsync();
+            var result = this.GetCollection().AsQueryable();
 
-            return result.AsQueryable();
+            return await Task.FromResult(result.AsQueryable());
         }
 
         public async Task<TEntity> Insert(TEntity entity)
