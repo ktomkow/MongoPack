@@ -19,21 +19,6 @@ namespace MongoPack.IntegrationTests.IdGenerationTests
             this.generator = new EntityIntIdGenerator<IntKeyedClass>(this.dbFactory);
         }
 
-        public async Task DisposeAsync()
-        {
-            await this.CleanUp();
-        }
-
-        public async Task InitializeAsync()
-        {
-            await this.CleanUp();
-        }
-
-        private async Task CleanUp()
-        {
-            await this.collectionPurger.Purge("_identifiers");
-        }
-
         [Fact]
         public async Task GenerateThreeIdentifiersOneByOne()
         {
@@ -65,6 +50,11 @@ namespace MongoPack.IntegrationTests.IdGenerationTests
             int lastOne = await this.generator.Generate();
 
             lastOne.Should().Be(repeats + 1);
+        }
+
+        protected override async Task Cleanup()
+        {
+            await this.collectionPurger.Purge("_identifiers");
         }
 
         private class IntKeyedClass : Entity<int>

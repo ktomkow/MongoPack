@@ -1,5 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoPack.Extensions;
+using MongoPack.IdGeneration;
 using MongoPack.Interrfaces;
 using ProjectsCore.Models;
 using ProjectsCore.Persistence;
@@ -14,20 +16,22 @@ namespace MongoPack
         where TEntity : IEntity<TKey>
     {
         private readonly ICollectionNameResolver resolver;
-        private readonly IMongoClient dbClient;
+        private readonly IEntityIdGenerator<TKey, TEntity> idGenerator;
         private readonly IMongoDatabase db;
 
-        public Repository(ICollectionNameResolver resolver)
+        public Repository(
+            IDbFactory dbFactory,
+            ICollectionNameResolver resolver, 
+            IEntityIdGenerator<TKey, TEntity> idGenerator)
         {
-            this.resolver = resolver ?? throw new System.ArgumentNullException(nameof(resolver));
-
-            this.dbClient = new MongoClient("mongodb://192.168.0.133:3099");
-            this.db = this.dbClient.GetDatabase("test");
+            this.resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
+            this.idGenerator = idGenerator;
+            this.db = dbFactory.Create();
         }
 
         public Task<TEntity> Get(TKey key)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public async Task<IQueryable<TEntity>> GetAll()
@@ -40,6 +44,10 @@ namespace MongoPack
         public async Task<TEntity> Insert(TEntity entity)
         {
             var collection = this.GetCollection();
+
+            TKey id = await idGenerator.Generate();
+            entity.SetIdOnEntity(id);
+
             await collection.InsertOneAsync(entity);
 
             return entity;
@@ -47,12 +55,12 @@ namespace MongoPack
 
         public Task<TEntity> Remove(TEntity entity)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public Task<TEntity> Update(TEntity entity)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         public IMongoCollection<TEntity> GetCollection()
