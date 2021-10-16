@@ -13,7 +13,8 @@ namespace MongoPack.IntegrationTests
         private readonly Repository<int, SimpleEntity> repositoryIntKey;
         private readonly Repository<Guid, SimpleEntityGuidId> repositoryGuidKey;
 
-        private readonly string collectionName;
+        private readonly string collectionNameInt;
+        private readonly string collectionNameGuid;
 
         public SimpleRepositoryTests()
         {
@@ -23,7 +24,8 @@ namespace MongoPack.IntegrationTests
             this.repositoryIntKey = new Repository<int, SimpleEntity>(this.dbFactory, nameResolver, intIdGenerator);
             this.repositoryGuidKey = new Repository<Guid, SimpleEntityGuidId>(this.dbFactory, nameResolver, guidIdGenerator);
 
-            this.collectionName = nameResolver.Resolve(typeof(SimpleEntity));
+            this.collectionNameInt = nameResolver.Resolve(typeof(SimpleEntity));
+            this.collectionNameGuid = nameResolver.Resolve(typeof(SimpleEntityGuidId));
         }
 
         [Fact]
@@ -54,7 +56,8 @@ namespace MongoPack.IntegrationTests
 
         protected override async Task Cleanup()
         {
-            await this.collectionPurger.Purge(this.collectionName);
+            await this.collectionPurger.Purge(this.collectionNameInt);
+            await this.collectionPurger.Purge(this.collectionNameGuid);
         }
 
         private class SimpleEntity : Entity<int>
