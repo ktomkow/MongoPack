@@ -16,6 +16,7 @@ namespace MongoPack.ServiceProvider
             services.AddTransient<IEntityIdGenerator<int, IEntity<int>>, EntityIntIdGenerator<IEntity<int>>>();
 
             services.AddTransient<IDbFactory, DbFactory>();
+            services.AddTransient<ICollectionNameResolver, DefaultCollectionNameResolver>();
 
             services.AddTransient(typeof(IRepository<,>), typeof(Repository<,>));
         }

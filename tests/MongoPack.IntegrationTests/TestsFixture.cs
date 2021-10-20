@@ -10,7 +10,7 @@ namespace MongoPack.IntegrationTests
     [Collection("TestsFixture")]
     public abstract class TestsFixture : IAsyncLifetime
     {
-        private readonly IServiceProvider serviceProvider;
+        protected readonly IServiceProvider serviceProvider;
 
         protected IDbFactory dbFactory => this.serviceProvider.GetService<IDbFactory>();
         protected ICollectionPurger collectionPurger => this.serviceProvider.GetService<ICollectionPurger>();

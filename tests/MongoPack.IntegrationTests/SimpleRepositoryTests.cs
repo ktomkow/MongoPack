@@ -1,28 +1,28 @@
-﻿using FluentAssertions;
-using MongoPack.IdGeneration;
-using MongoPack.Implementations;
+﻿using Microsoft.Extensions.DependencyInjection;
+using FluentAssertions;
+using MongoPack.Interrfaces;
 using ProjectsCore.Models;
 using System;
 using System.Threading.Tasks;
 using Xunit;
+using ProjectsCore.Persistence;
 
 namespace MongoPack.IntegrationTests
 {
     public class SimpleRepositoryTests : TestsFixture
     {
-        private readonly Repository<int, SimpleEntity> repositoryIntKey;
-        private readonly Repository<Guid, SimpleEntityGuidId> repositoryGuidKey;
+        private readonly IRepository<int, SimpleEntity> repositoryIntKey;
+        private readonly IRepository<Guid, SimpleEntityGuidId> repositoryGuidKey;
 
         private readonly string collectionNameInt;
         private readonly string collectionNameGuid;
 
         public SimpleRepositoryTests(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            var nameResolver = new DefaultCollectionNameResolver();
-            var intIdGenerator  = new EntityIntIdGenerator<SimpleEntity>(this.dbFactory);
-            var guidIdGenerator  = new EntityGuidIdGenerator<SimpleEntityGuidId>();
-            this.repositoryIntKey = new Repository<int, SimpleEntity>(this.dbFactory, nameResolver, intIdGenerator);
-            this.repositoryGuidKey = new Repository<Guid, SimpleEntityGuidId>(this.dbFactory, nameResolver, guidIdGenerator);
+            ICollectionNameResolver nameResolver = this.serviceProvider.GetService<ICollectionNameResolver>();
+
+            this.repositoryIntKey = this.serviceProvider.GetService<IRepository<int, SimpleEntity>>();
+            this.repositoryGuidKey = this.serviceProvider.GetService<IRepository<Guid, SimpleEntityGuidId>>();
 
             this.collectionNameInt = nameResolver.Resolve(typeof(SimpleEntity));
             this.collectionNameGuid = nameResolver.Resolve(typeof(SimpleEntityGuidId));
