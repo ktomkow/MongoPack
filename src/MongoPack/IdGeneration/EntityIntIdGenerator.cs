@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace MongoPack.IdGeneration
 {
-    internal class EntityIntIdGenerator<TEntity> : IEntityIdGenerator<int, TEntity> where TEntity : IEntity<int>
+    public class EntityIntIdGenerator<TEntity> : IEntityIdGenerator<int, TEntity> where TEntity : IEntity<int>
     {
         private const string CollectionName = "_identifiers";
         private static readonly string EntityTypeName = typeof(TEntity).Name;
