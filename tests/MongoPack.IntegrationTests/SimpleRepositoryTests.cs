@@ -16,7 +16,7 @@ namespace MongoPack.IntegrationTests
         private readonly string collectionNameInt;
         private readonly string collectionNameGuid;
 
-        public SimpleRepositoryTests()
+        public SimpleRepositoryTests(IServiceProvider serviceProvider) : base(serviceProvider)
         {
             var nameResolver = new DefaultCollectionNameResolver();
             var intIdGenerator  = new EntityIntIdGenerator<SimpleEntity>(this.dbFactory);

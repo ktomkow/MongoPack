@@ -4,6 +4,7 @@ using MongoPack.Implementations;
 using MongoPack.Interrfaces;
 using MongoPack.Testing;
 using ProjectsCore.Models;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
@@ -14,7 +15,7 @@ namespace MongoPack.IntegrationTests.IdGenerationTests
     {
         private readonly EntityIntIdGenerator<IntKeyedClass> generator;
 
-        public IntIdGenerationTests()
+        public IntIdGenerationTests(IServiceProvider serviceProvider) : base(serviceProvider)
         {
             this.generator = new EntityIntIdGenerator<IntKeyedClass>(this.dbFactory);
         }

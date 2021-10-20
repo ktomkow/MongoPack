@@ -1,5 +1,8 @@
-﻿using MongoPack.Implementations;
+﻿using Microsoft.Extensions.DependencyInjection;
+using MongoPack.Interrfaces;
+using MongoPack.ServiceProvider;
 using MongoPack.Testing;
+using System;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -10,27 +13,14 @@ namespace MongoPack.IntegrationTests
     [Collection("TestsFixture")]
     public abstract class TestsFixture : IAsyncLifetime
     {
-        private static readonly TestsSettings Settings = LoadSettings();
-        private readonly MongoDbSettings mongoSettings;
+        private readonly IServiceProvider serviceProvider;
 
-        protected readonly DbFactory dbFactory;
-        protected readonly ICollectionPurger collectionPurger;
+        protected IDbFactory dbFactory => this.serviceProvider.GetService<IDbFactory>();
+        protected ICollectionPurger collectionPurger => this.serviceProvider.GetService<ICollectionPurger>();
 
-        public TestsFixture()
+        public TestsFixture(IServiceProvider serviceProvider)
         {
-            LoadSettings();
-            
-            this.mongoSettings = new MongoDbSettings(Settings.ConnectionString, "MongoPackTestDb");
-            this.dbFactory = new DbFactory(mongoSettings);
-            this.collectionPurger = new CollectionPurger(dbFactory);
-        }
-
-        private static TestsSettings LoadSettings()
-        {
-            var settingsFile = "settings.json";
-            var settingsJson = File.ReadAllText(settingsFile);
-
-            return JsonSerializer.Deserialize<TestsSettings>(settingsJson);
+            this.serviceProvider = serviceProvider;
         }
 
         public virtual async Task InitializeAsync()
