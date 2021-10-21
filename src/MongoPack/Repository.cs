@@ -16,13 +16,13 @@ namespace MongoPack
         where TEntity : IEntity<TKey>
     {
         private readonly ICollectionNameResolver resolver;
-        private readonly IEntityIdGenerator<TKey, TEntity> idGenerator;
+        private readonly IEntityIdGenerator<TKey> idGenerator;
         private readonly IMongoDatabase db;
 
         public Repository(
             IDbFactory dbFactory,
             ICollectionNameResolver resolver, 
-            IEntityIdGenerator<TKey, TEntity> idGenerator)
+            IEntityIdGenerator<TKey> idGenerator)
         {
             this.resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
             this.idGenerator = idGenerator;
@@ -45,7 +45,7 @@ namespace MongoPack
         {
             var collection = this.GetCollection();
 
-            TKey id = await idGenerator.Generate();
+            TKey id = await idGenerator.Generate(typeof(TEntity));
             entity.SetIdOnEntity(id);
 
             await collection.InsertOneAsync(entity);

@@ -4,11 +4,11 @@ namespace MongoPack.IdGeneration
 {
     public abstract class IdState<T> where T : struct
     {
-        public string Id { get; }
+        public string Id { get; protected set; }
 
         public T Value { get; protected set; }
 
-        private IdState() { }
+        protected IdState() { }
 
         protected IdState(Type type)
         {

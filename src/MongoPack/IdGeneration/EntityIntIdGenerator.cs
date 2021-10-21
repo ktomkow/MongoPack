@@ -1,20 +1,19 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
 using MongoPack.Interrfaces;
-using ProjectsCore.Models;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Linq;
 using System.Threading;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MongoPack.IdGeneration
 {
-    public class EntityIntIdGenerator<TEntity> : IEntityIdGenerator<int, TEntity> where TEntity : IEntity<int>
+    public class EntityIntIdGenerator : IEntityIdGenerator<int>
     {
         private const string CollectionName = "_identifiers";
-        private static readonly string EntityTypeName = typeof(TEntity).Name;
-        private static SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
+
+        private static ConcurrentDictionary<string, SemaphoreSlim> semaphores = new ConcurrentDictionary<string, SemaphoreSlim>();
 
         private readonly IMongoDatabase db;
 
@@ -23,12 +22,13 @@ namespace MongoPack.IdGeneration
             this.db = dbFactory.Create();
         }
 
-        public async Task<int> Generate()
+        public async Task<int> Generate(Type type)
         {
             var collection = this.GetCollection();
+            string typeName = type.Name;
+            var filter = Builders<IntIdState>.Filter.Eq("_id", typeName);
 
-            var filter = Builders<IntIdState>.Filter.Eq("_id", EntityTypeName);
-
+            var semaphore = semaphores.GetOrAdd(typeName, (_) => new SemaphoreSlim(1, 1));
             await semaphore.WaitAsync();
 
             List<IntIdState> entities = await (await collection.FindAsync(filter).ConfigureAwait(false)).ToListAsync().ConfigureAwait(false);
@@ -36,14 +36,14 @@ namespace MongoPack.IdGeneration
 
             if (entities.Any() == false)
             {
-                idState = new IntIdState();
+                idState = new IntIdState(typeName);
                 await collection.InsertOneAsync(idState).ConfigureAwait(false);
 
             }
             else if (entities.Count > 1)
             {
                 semaphore.Release();
-                throw new Exception($"WTF, more than 1 Id container for type: [{EntityTypeName}] ");
+                throw new Exception($"WTF, more than 1 Id container for type: [{typeName}] ");
             }
             else
             {
@@ -51,7 +51,7 @@ namespace MongoPack.IdGeneration
             }
 
             int result = idState.Tick();
-            
+
             await collection.FindOneAndReplaceAsync(filter, idState).ConfigureAwait(false);
 
             semaphore.Release();
@@ -68,12 +68,11 @@ namespace MongoPack.IdGeneration
 
         private class IntIdState : IdState<int>
         {
-            public IntIdState() : base(EntityTypeName) { }
+            public IntIdState(string typeName) : base(typeName) { }
 
             public override int Tick()
             {
-                this.Value++;
-                return Value;
+                return ++Value;
             }
         }
     }

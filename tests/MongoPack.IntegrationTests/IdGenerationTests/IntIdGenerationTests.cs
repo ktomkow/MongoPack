@@ -1,8 +1,6 @@
 ﻿using FluentAssertions;
 using MongoPack.IdGeneration;
-using MongoPack.Implementations;
-using MongoPack.Interrfaces;
-using MongoPack.Testing;
+using Microsoft.Extensions.DependencyInjection;
 using ProjectsCore.Models;
 using System;
 using System.Collections.Generic;
@@ -13,19 +11,20 @@ namespace MongoPack.IntegrationTests.IdGenerationTests
 {
     public class IntIdGenerationTests : TestsFixture, IAsyncLifetime
     {
-        private readonly EntityIntIdGenerator<IntKeyedClass> generator;
+        private readonly EntityIntIdGenerator generator;
 
         public IntIdGenerationTests(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            this.generator = new EntityIntIdGenerator<IntKeyedClass>(this.dbFactory);
+            this.generator = (EntityIntIdGenerator) this.serviceProvider.GetService<IEntityIdGenerator<int>>();
         }
 
         [Fact]
         public async Task GenerateThreeIdentifiersOneByOne()
         {
-            int firstId = await this.generator.Generate();
-            int secondId = await this.generator.Generate();
-            int thirdId = await this.generator.Generate();
+            var type = typeof(IntKeyedClass);
+            int firstId = await this.generator.Generate(type);
+            int secondId = await this.generator.Generate(type);
+            int thirdId = await this.generator.Generate(type);
 
             firstId.Should().Be(1);
             secondId.Should().Be(2);
@@ -39,16 +38,17 @@ namespace MongoPack.IntegrationTests.IdGenerationTests
         [InlineData(1000)]
         public async Task CheckRaceConditions(int repeats)
         {
+            var type = typeof(IntKeyedClass);
             var list = new List<Task>();
 
             for (int i = 0; i < repeats; i++)
             {
-                list.Add(this.generator.Generate());
+                list.Add(this.generator.Generate(type));
             }
 
             await Task.WhenAll(list);
 
-            int lastOne = await this.generator.Generate();
+            int lastOne = await this.generator.Generate(type);
 
             lastOne.Should().Be(repeats + 1);
         }
@@ -58,7 +58,7 @@ namespace MongoPack.IntegrationTests.IdGenerationTests
             await this.collectionPurger.Purge("_identifiers");
         }
 
-        private class IntKeyedClass : Entity<int>
+        public class IntKeyedClass : Entity<int>
         {
             public string Name { get; set; }
         }

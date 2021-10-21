@@ -1,12 +1,11 @@
-﻿using ProjectsCore.Models;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 
 namespace MongoPack.IdGeneration
 {
-    public class EntityGuidIdGenerator<TEntity> : IEntityIdGenerator<Guid, TEntity> where TEntity : IEntity<Guid>
+    public class EntityGuidIdGenerator : IEntityIdGenerator<Guid>
     {
-        public async Task<Guid> Generate()
+        public async Task<Guid> Generate(Type type)
         {
             Guid guid = Guid.NewGuid();
 
