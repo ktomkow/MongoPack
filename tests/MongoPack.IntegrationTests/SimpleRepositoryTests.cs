@@ -6,6 +6,7 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 using ProjectsCore.Persistence;
+using System.Linq;
 
 namespace MongoPack.IntegrationTests
 {
@@ -39,6 +40,21 @@ namespace MongoPack.IntegrationTests
             await repositoryIntKey.Insert(entity);
 
             entity.Id.Should().NotBe(default(int));
+        }
+
+        [Fact]
+        public async Task InsertAndRead_IntId_ShouldBeGenerated()
+        {
+            SimpleEntity entity = new SimpleEntity()
+            {
+                Name = "Naaaame"
+            };
+
+            await repositoryIntKey.Insert(entity);
+            var entities = await repositoryIntKey.GetAll();
+            var readEntity = entities.First();
+
+            readEntity.Id.Should().NotBe(default(int));
         }
 
         [Fact]

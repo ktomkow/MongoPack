@@ -7,7 +7,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.13.2" />
-    <PackageReference Include="ProjectsCore" Version="1.0.0.16" />
+    <PackageReference Include="ProjectsCore" Version="1.0.0.17" />
 
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
       <_Parameter1>$(AssemblyName).UnitTests</_Parameter1>

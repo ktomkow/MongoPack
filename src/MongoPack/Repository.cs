@@ -13,7 +13,7 @@ namespace MongoPack
 {
     public class Repository<TKey, TEntity> : IRepository<TKey, TEntity>
         where TKey : struct
-        where TEntity : IEntity<TKey>
+        where TEntity : Entity<TKey>
     {
         private readonly ICollectionNameResolver resolver;
         private readonly IEntityIdGenerator<TKey> idGenerator;
@@ -46,7 +46,7 @@ namespace MongoPack
             var collection = this.GetCollection();
 
             TKey id = await idGenerator.Generate(typeof(TEntity));
-            entity.SetIdOnEntity(id);
+            entity.SetId(id);
 
             await collection.InsertOneAsync(entity);
 
